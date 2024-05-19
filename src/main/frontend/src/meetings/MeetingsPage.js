@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import NewMeetingForm from "./NewMeetingForm";
 import MeetingsList from "./MeetingsList";
 
@@ -14,19 +14,22 @@ export default function MeetingsPage({username}) {
             headers: { 'Content-Type': 'application/json' }
         });
         if (response.ok) {
-            const nextMeetings = [...meetings, meeting];
+            const newMeeting = await response.json();
+            const nextMeetings = [...meetings, newMeeting];
             setMeetings(nextMeetings);
             setAddingNewMeeting(false);
         }
     }
-        // const nextMeetings = [...meetings, meeting];
-        // setMeetings(nextMeetings);
-        // setAddingNewMeeting(false);
 
+    async function handleDeleteMeeting(meeting) {
+        const response = await fetch(`/api/meetings/${meeting.id}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            const nextMeetings = meetings.filter(m => m !== meeting);
+            setMeetings(nextMeetings);
+        }
 
-    function handleDeleteMeeting(meeting) {
-        const nextMeetings = meetings.filter(m => m !== meeting);
-        setMeetings(nextMeetings);
     }
 
     function handleSignIn(meeting) {
@@ -48,6 +51,16 @@ export default function MeetingsPage({username}) {
         });
         setMeetings(nextMeetings);
     }
+    useEffect(() => {
+        const fetchMeetings = async () => {
+            const response = await fetch(`/api/meetings`);
+            if (response.ok) {
+                const meetings = await response.json();
+                setMeetings(meetings);
+            }
+        };
+        fetchMeetings();
+    }, []);
 
     return (
         <div>

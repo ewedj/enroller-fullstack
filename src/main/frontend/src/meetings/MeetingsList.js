@@ -14,6 +14,7 @@ export default function MeetingsList({meetings, username, onDelete, onSignOut, o
             <tbody>
             {
                 meetings.map((meeting, index) => <tr key={index}>
+                    <td>{meeting.id}</td>
                     <td>{meeting.title}</td>
                     <td>{meeting.description}</td>
                     <td>
