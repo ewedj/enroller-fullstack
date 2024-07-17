@@ -32,30 +32,45 @@ export default function MeetingsPage({username}) {
 
     }
 
-    function handleSignIn(meeting) {
-        const nextMeetings = meetings.map(m => {
-            if (m === meeting) {
-                m.participants = [...m.participants, username];
-            }
-            return m;
+    async function handleSignIn(meeting) {
+        const response = await fetch(`/api/meetings/${meeting.id}/participants`, {
+            method: 'POST',
+            body: JSON.stringify({login: username}),
+            headers: { 'Content-Type': 'application/json' }
         });
-        setMeetings(nextMeetings);
+
+        if (response.ok) {
+            const nextMeetings = meetings.map(m => {
+                if (m === meeting) {
+                    m.participants = [...m.participants, username];
+                }
+                return m;
+            });
+            setMeetings(nextMeetings);
+        }
     }
 
-    function handleSignOut(meeting) {
-        const nextMeetings = meetings.map(m => {
-            if (m === meeting) {
-                m.participants = m.participants.filter(u => u !== username);
-            }
-            return m;
+    async function handleSignOut(meeting) {
+        const response = await fetch(`/api/meetings/${meeting.id}/participants/${username}`, {
+            method: 'DELETE'
         });
-        setMeetings(nextMeetings);
+
+        if (response.ok) {
+            const nextMeetings = meetings.map(m => {
+                if (m === meeting) {
+                    m.participants = m.participants.filter(u => u !== username);
+                }
+                return m;
+            });
+            setMeetings(nextMeetings);
+        }
     }
     useEffect(() => {
         const fetchMeetings = async () => {
             const response = await fetch(`/api/meetings`);
             if (response.ok) {
                 const meetings = await response.json();
+                console.log(meetings);
                 setMeetings(meetings);
             }
         };

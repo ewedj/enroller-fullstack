@@ -1,5 +1,7 @@
 package com.company.enroller.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,6 +15,7 @@ public class Participant {
     private String login;
 
     @Column
+    @JsonIgnore
     private String password;
 
     public String getLogin() {
@@ -23,7 +26,7 @@ public class Participant {
         this.login = login;
     }
 
-    public String getPassword() {
+    private String getPassword() {
         return password;
     }
 

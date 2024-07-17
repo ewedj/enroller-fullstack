@@ -83,7 +83,7 @@ public class MeetingRestController {
         if (meeting == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<Collection<Participant>>(meeting.getParticipants(), HttpStatus.OK);
+        return new ResponseEntity<>(meeting.getParticipants(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{id}/participants", method = RequestMethod.POST)
@@ -95,15 +95,21 @@ public class MeetingRestController {
         }
         String login = json.get("login");
         if (login == null) {
-            return new ResponseEntity<String>("Unable to find participant login in the request body",
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Unable to find participant login in the request body",
+                    HttpStatus.FORBIDDEN);
         }
 
         Participant participantToAdd = participantService.findByLogin(login);
+        if (participantToAdd == null) {
+            participantToAdd = new Participant();
+            participantToAdd.setLogin(login);
+            participantService.add(participantToAdd);
+        }
+
         currentMeeting.addParticipant(participantToAdd);
         meetingService.update(currentMeeting);
 
-        return new ResponseEntity<Collection<Participant>>(currentMeeting.getParticipants(), HttpStatus.OK);
+        return new ResponseEntity<>(currentMeeting.getParticipants(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{id}/participants/{login}", method = RequestMethod.DELETE)
@@ -115,7 +121,6 @@ public class MeetingRestController {
         Participant participant = participantService.findByLogin(login);
         meeting.removeParticipant(participant);
         meetingService.update(meeting);
-        return new ResponseEntity<Collection<Participant>>(meeting.getParticipants(), HttpStatus.OK);
+        return new ResponseEntity<>(meeting.getParticipants(), HttpStatus.OK);
     }
-
 }
